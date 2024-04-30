@@ -43,10 +43,46 @@ exports.users_post_signup = (req, res, next) => {
                     });
                     user.save()
                     .then(result => {
-                        res.status(201).json({
-                            message: 'User created!',
-                            result: result
-                        })
+                        User.find({email: req.body.email})
+    .exec()
+    .then(user => {
+        if(user.length < 1){
+            return res.status(401).json({
+                message: 'Email not registered'
+            })
+        }
+        bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+            if(err){
+                return res.status(401).json({
+                    message: 'Login failed!'
+                })
+            }
+            if(result){
+                const token = jwt.sign(
+                    {
+                        email: user[0].email,
+                        userId: user[0]._id
+                    }, 
+                    process.env.MONGO_ATLAS_PW, 
+                    {
+                        expiresIn: "1h"
+                    }
+                );
+                return res.status(200).json({
+                    message: 'Login successful!',
+                    token: token
+                });
+            }
+            res.status(401).json({
+                message: 'Login failed!'
+            })
+        })
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    })
                     })
                     .catch(err => {
                         res.status(500).json({
@@ -84,7 +120,7 @@ exports.users_post_login = (req, res, next) => {
                     }, 
                     process.env.MONGO_ATLAS_PW, 
                     {
-                        expiresIn: "100h"
+                        expiresIn: "1h"
                     }
                 );
                 return res.status(200).json({

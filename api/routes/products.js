@@ -30,11 +30,11 @@ const fileFilter = (req, file, cb) => {
     fileFilter: fileFilter
   });
 
-router.get('/', ProductsController.products_get_all)
+router.get('/', checkAuth, ProductsController.products_get_all)
 
 router.get('/:productId', checkAuth, ProductsController.products_get_one)
 
-router.post('/', upload.single('productImage'), ProductsController.products_post)
+router.post('/', upload.single('productImage'), checkAuth, ProductsController.products_post)
 
 router.patch('/:productId', checkAuth, ProductsController.products_update)
 

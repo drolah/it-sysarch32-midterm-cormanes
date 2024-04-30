@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 exports.orders_get_all = (req, res, next) => {
     Order.find()
     .select('product quantity _id')
-    .populate('product', 'name')
+    .populate('product', 'productImage name price')
     .exec()
     .then(result => {
         res.status(200).json({
@@ -17,7 +17,7 @@ exports.orders_get_all = (req, res, next) => {
                     quantity: data.quantity,
                     request: {
                         type: 'GET',
-                        url: 'http://localhost:3000/orders/'+result._id
+                        url: 'http://localhost:3000/orders/'+data._id
                     }
                 }
             })
@@ -109,6 +109,28 @@ exports.Orders_post = (req, res, next) => {
     })
 }
 
+exports.Orders_update = (req, res, next) => {
+    const id = req.params.orderId
+    const updateQuantity = req.body.quantity
+
+    Order.updateOne({_id: id}, {$set: { quantity: updateQuantity}})
+    .exec()
+    .then(result => {
+        res.status(200).json({
+            message: 'Order updated!',
+            product: result,
+            request: {
+                type: 'PATCH',
+                url: 'http://localhost:3000/orders/'+id
+            }
+        })
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    })
+}
 
 
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.products_get_all = (req, res, next) => {
     Product.find()
@@ -123,6 +124,7 @@ exports.products_update = (req, res, next) => {
 
 exports.products_delete = (req, res, next) => {
     const id = req.params.productId
+    
     Product.deleteOne({_id: id})
     .exec()
     .then(result => {
